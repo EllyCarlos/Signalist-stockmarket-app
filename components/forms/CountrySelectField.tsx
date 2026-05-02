@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -42,14 +41,17 @@ const CountrySelect = ({
     // Get country options with flags
     const countries = countryList().getData();
 
-    // Helper function to get flag emoji
-    const getFlagEmoji = (countryCode: string) => {
-        const codePoints = countryCode
-            .toUpperCase()
-            .split('')
-            .map((char) => 127397 + char.charCodeAt(0));
-        return String.fromCodePoint(...codePoints);
-    };
+    const getFlagUrl = (countryCode: string) =>
+        `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+
+    const renderFlag = (countryCode: string, countryName?: string) => (
+        <span
+            role='img'
+            aria-label={countryName ? `${countryName} flag` : 'Country flag'}
+            className='country-flag'
+            style={{ backgroundImage: `url(${getFlagUrl(countryCode)})` }}
+        />
+    );
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -62,8 +64,11 @@ const CountrySelect = ({
                 >
                     {value ? (
                         <span className='flex items-center gap-2'>
-              <span>{getFlagEmoji(value)}</span>
-              <span>{countries.find((c) => c.value === value)?.label}</span>
+              {renderFlag(
+                  value,
+                  countries.find((c) => c.value === value)?.label
+              )}
+                            <span>{countries.find((c) => c.value === value)?.label}</span>
             </span>
                     ) : (
                         'Select your country...'
@@ -102,7 +107,7 @@ const CountrySelect = ({
                                         )}
                                     />
                                     <span className='flex items-center gap-2'>
-                    <span>{getFlagEmoji(country.value)}</span>
+                    {renderFlag(country.value, country.label)}
                     <span>{country.label}</span>
                   </span>
                                 </CommandItem>

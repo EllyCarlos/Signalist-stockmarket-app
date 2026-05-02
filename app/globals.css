@@ -205,6 +205,9 @@
     .country-select-item {
         @apply text-white cursor-pointer px-3 py-2 rounded-sm bg-gray-800 hover:!bg-gray-600;
     }
+    .country-flag {
+        @apply h-4 w-6 shrink-0 rounded-[2px] object-cover;
+    }
     .footer-link {
         @apply text-gray-400 font-medium hover:text-yellow-400 hover:underline transition-colors;
     }

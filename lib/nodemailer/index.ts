@@ -1,10 +1,20 @@
 import nodemailer from "nodemailer";
 import {WELCOME_EMAIL_TEMPLATE} from "@/lib/nodemailer/templates";
 
+const getNodemailerEmail = () => {
+    const email = process.env.NODEMAILER_EMAIL;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new Error("NODEMAILER_EMAIL is required and must be a valid email address");
+    }
+
+    return email;
+}
+
 export const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.NODEMAILER_EMAIL!,
+        user: getNodemailerEmail(),
         pass: process.env.NODEMAILER_PASSWORD!,
     }
 })
@@ -15,7 +25,7 @@ export const sendWelcomeEmail = async ({ email, name, intro }: WelcomeEmailData)
         .replace('{{intro}}', intro);
 
     const mailOptions = {
-        from: '"Signalist" <ellycarlos7915@gmail.com>',
+        from: `"Signalist" <${getNodemailerEmail()}>`,
         to: email,
         subject: `Welcome to Signalist - your stock market toolkit is ready!`,
         text: 'Thanks for your joining Signalist !',

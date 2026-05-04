@@ -4,11 +4,17 @@ import { connectToDatabase } from "@/database/mongoose";
 import { nextCookies } from "better-auth/next-js";
 import type { Db } from "mongodb";
 
-const createAuth = (db: Db) =>
-    betterAuth({
+const createAuth = (db: Db) => {
+    const secret = process.env.BETTER_AUTH_SECRET;
+    const baseURL = process.env.BETTER_AUTH_URL;
+
+    if (!secret) throw new Error("BETTER_AUTH_SECRET is required within .env");
+    if (!baseURL) throw new Error("BETTER_AUTH_URL is required within .env");
+
+    return betterAuth({
         database: mongodbAdapter(db),
-        secret: process.env.BETTER_AUTH_SECRET,
-        baseURL: process.env.BETTER_AUTH_URL,
+        secret,
+        baseURL,
         emailAndPassword: {
             enabled: true,
             disableSignUp: false,
@@ -19,6 +25,7 @@ const createAuth = (db: Db) =>
         },
         plugins: [nextCookies()],
     });
+};
 
 let authInstance: ReturnType<typeof createAuth> | null = null;
 

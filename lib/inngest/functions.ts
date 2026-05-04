@@ -10,10 +10,8 @@ export const sendSignUpEmail = inngest.createFunction(
     },
     async ({ event, step }) => {
         const userProfile = `
-        - Country: ${event.data.country}
-        - Investment: ${event.data.investmentGoals}
-        - Risk Tolerance: ${event.data.riskTolerance}
-        - Preferred industry: ${event.data.preferredIndustry}
+        - New user: recently joined Signalist
+        - Intro focus: general market tracking and investing workflow
         `
 
         const prompt = PERSONALIZED_WELCOME_EMAIL_PROMPT.replace('{{userProfile}}', userProfile)

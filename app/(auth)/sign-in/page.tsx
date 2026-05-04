@@ -5,7 +5,6 @@ import InputField from "@/components/forms/InputField";
 import FooterLink from "@/components/forms/FooterLink";
 import { useForm } from "react-hook-form";
 import {signInWithEmail} from "@/lib/actions/auth.actions";
-import {router} from "next/client";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
 
@@ -26,7 +25,14 @@ const SignInPage = () => {
     const onSubmit = async (data: SignInFormData) => {
         try {
             const result = await signInWithEmail(data);
-            if(result.success) router.push("/");
+            if (result.success) {
+                router.push("/");
+                return;
+            }
+
+            toast.error('Sign in failed', {
+                description: result.error || 'Failed to sign in your account',
+            });
         } catch (e) {
             console.error(e);
             toast.error('Sign in failed', {

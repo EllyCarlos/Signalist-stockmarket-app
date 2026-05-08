@@ -21,7 +21,7 @@ export const getWatchlistSymbolsByEmail = async (email: string): Promise<string[
         const db = mongoose.connection.db;
         if (!db) throw new Error("MongoDB connection error");
 
-        const user = await db.collection<BetterAuthUserDocument>('users').findOne(
+        const user = await db.collection<BetterAuthUserDocument>('user').findOne(
             { email },
             { projection: { _id: 1, id: 1, email: 1 } },
         );

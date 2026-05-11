@@ -13,7 +13,7 @@ import { LogOut } from "lucide-react";
 import NavItems from "@/components/NavItems";
 import {signOut} from "@/lib/actions/auth.actions";
 
-const UserDropdown = ({ user }: {user: User}) => {
+const UserDropdown = ({ user, initialStocks }: {user: User, initialStocks: StockWithWatchlistStatus[]}) => {
     const router = useRouter();
 
     const handleSignOut = async () => {
@@ -78,7 +78,7 @@ const UserDropdown = ({ user }: {user: User}) => {
                       is inside NavItems to display as a vertical column.
                     */}
                     <div className="sm:hidden flex flex-col px-2 py-2 gap-3 [&_ul]:flex-col [&_ul]:gap-3 [&_div]:flex-col [&_div]:gap-3 [&_a]:text-sm [&_a]:font-medium  :text-gray-200">
-                        <NavItems />
+                        <NavItems initialStocks={initialStocks}/>
                     </div>
                     <DropdownMenuSeparator className="bg-gray-600 mt-1" />
                 </div>

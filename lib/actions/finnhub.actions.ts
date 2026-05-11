@@ -173,7 +173,7 @@ export async function searchStocks(query?: string): Promise<StockWithWatchlistSt
             .map((r) => {
                 const upper = (r.symbol || '').toUpperCase();
                 const name = r.description || upper;
-                const exchange = r.exchange || r.displaySymbol || 'US';
+                const exchange = r.exchange || 'US';
                 const type = r.type || 'Stock';
                 const item: StockWithWatchlistStatus = {
                     symbol: upper,

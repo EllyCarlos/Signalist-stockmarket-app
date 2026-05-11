@@ -1,6 +1,14 @@
 import nodemailer from "nodemailer";
 import {NEWS_SUMMARY_EMAIL_TEMPLATE, WELCOME_EMAIL_TEMPLATE} from "@/lib/nodemailer/templates";
 
+const escapeHtml = (value: string) =>
+    value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
 const getNodemailerEmail = () => {
     const email = process.env.NODEMAILER_EMAIL;
 
@@ -38,9 +46,10 @@ export const sendWelcomeEmail = async ({ email, name, intro }: WelcomeEmailData)
 export const sendNewsSummaryEmail = async (
     { email, date, newsContent }: {email: string; date: string; newsContent: string }
 ): Promise<void> => {
+    const safeNewsContent = escapeHtml(newsContent);
     const htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE
         .replace('{{date}}', date)
-        .replace('{{newsContent}}', newsContent);
+        .replace('{{newsContent}}', safeNewsContent);
 
     const mailOptions = {
         from: `"Signalist News" <${getNodemailerEmail()}>`,

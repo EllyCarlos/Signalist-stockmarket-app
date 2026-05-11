@@ -3,8 +3,9 @@
 import {NAV_ITEMS} from "@/lib/constants";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
+import SearchCommand from "@/components/SearchCommand";
 
-const NavItems = () => {
+const NavItems = ({initialStocks}: { initialStocks: StockWithWatchlistStatus[]}) => {
     const pathname = usePathname()
 
     const isActive = (path: string) => {
@@ -15,15 +16,27 @@ const NavItems = () => {
     return (
         /* Change flex-row to flex-col sm:flex-row */
         <ul className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 font-medium">
-            {NAV_ITEMS.map(({href, label}) => (
-                <li key={href} className="w-full sm:w-auto">
+            {NAV_ITEMS.map(({href, label}) => {
+
+            if(label === 'Search') return (
+                <li key="search-trigger">
+                    <SearchCommand
+                        renderAs="text"
+                        label="Search"
+                        initialStocks={initialStocks}
+                    />
+                </li>
+            )
+
+
+                return <li key={href} className="w-full sm:w-auto">
                     <Link href={href} className={`block py-1 sm:py-0 hover:text-yellow-500 transition-colors ${
                         isActive(href) ? 'text-gray-100' : 'text-gray-400'
                     }`}>
                         {label}
                     </Link>
                 </li>
-            ))}
+})}
         </ul>
     )
 }

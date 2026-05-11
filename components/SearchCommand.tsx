@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   CommandDialog,
@@ -25,6 +25,7 @@ export default function SearchCommand({
   label = "Add stock",
   initialStocks = [],
 }: SearchCommandProps) {
+  const requestIdRef = useRef(0);
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTeam] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,16 +56,30 @@ export default function SearchCommand({
   }, []);
 
   const handleSearch = async () => {
-    if(!isSearchMode) return setStocks(initialStocks);
+    const requestId = ++requestIdRef.current;
+
+    if (!isSearchMode) {
+      if (requestId === requestIdRef.current) {
+        setStocks(initialStocks);
+        setLoading(false);
+      }
+      return;
+    }
 
     setLoading(true)
     try {
       const results = await searchStocks(searchTerm.trim());
-      setStocks(results);
+      if (requestId === requestIdRef.current) {
+        setStocks(results);
+      }
     } catch {
-      setStocks([])
+      if (requestId === requestIdRef.current) {
+        setStocks([])
+      }
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) {
+        setLoading(false)
+      }
     }
   }
 
@@ -78,9 +93,9 @@ export default function SearchCommand({
   return (
       <>
         {renderAs === 'text' ?(
-            <span onClick={() => setOpen(true)} className="search-text">
+            <button type="button" onClick={() => setOpen(true)} className="search-text" aria-label={label}>
               {label}
-            </span>
+            </button>
         ): (
             <Button onClick={() => setOpen(true)} className="search-btn">
               {label}
@@ -106,11 +121,11 @@ export default function SearchCommand({
               {isSearchMode ? 'No results found' : 'No stocks available'}
             </div>
         ) : (
-            <ul>
+            <>
               <div className="search-count">
-                {isSearchMode ? 'Search results' : 'Popular stocks' }
-                {` `}({displayStocks?.length || 0})
+                {isSearchMode ? 'Search results' : 'Popular stocks' } ({displayStocks?.length || 0})
               </div>
+              <ul>
               {displayStocks?.map((stock) =>(
                   <li key={stock.symbol} className="search-item">
                     <Link
@@ -133,7 +148,8 @@ export default function SearchCommand({
                   </li>
                   )
               )}
-            </ul>
+              </ul>
+            </>
         )}
       </CommandList>
     </CommandDialog>

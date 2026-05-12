@@ -25,10 +25,10 @@ const WatchlistTable = ({ rows = [] }: WatchlistTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {rows.map((row) => (
+        {rows.map((row, rowIndex) => (
           <TableRow key={row[1]} className="table-row">
-            {row.map((cell) => (
-              <TableCell key={`${row[1]}-${cell}`} className="table-cell text-left">
+            {row.map((cell, cellIndex) => (
+              <TableCell key={`${rowIndex}-${cellIndex}`} className="table-cell text-left">
                 {cell}
               </TableCell>
             ))}

@@ -1,5 +1,5 @@
 import {inngest} from "@/lib/inngest/client";
-import {NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT} from "@/lib/inngest/prompts";
+import {PERSONALIZED_WELCOME_EMAIL_PROMPT} from "@/lib/inngest/prompts";
 import {sendNewsSummaryEmail, sendWelcomeEmail} from "@/lib/nodemailer";
 import {getAllUsersForNewsEmail} from "@/lib/actions/user.actions";
 import {getWatchlistSymbolsByEmail} from "@/lib/actions/watchlist.actions";
@@ -10,6 +10,11 @@ type UserNewsPayload = {
     user: User;
     symbols: string[];
     news: MarketNewsArticle[];
+};
+
+type UserNewsSummaryPayload = {
+    user: User;
+    newsContent: string | null;
 };
 
 
@@ -90,43 +95,46 @@ export const sendDailyNewsSummary = inngest.createFunction(
                 );
             });
 
-            // Step #3: Summarize news via AI for each user
-            const userNewsSummaries: { user: User; newsContent: string | null}[] = [];
-
-            for (const { user, news } of userNews) {
-                try {
-                        const prompt=NEWS_SUMMARY_EMAIL_PROMPT.replace('{{newsData}}', JSON.stringify(news, null, 2));
-
-                        const response = await step.ai.infer(`summarize-news-${user.id}`, {
-                            model: step.ai.models.gemini({ model: 'gemini-2.5-flash-lite' }),
-                            body: {
-                                contents: [{ role: 'user', parts: [{ text: prompt}]}]
-                            }
-                        });
-
-                        const part = response.candidates?.[0]?.content?.parts?.[0];
-                        const newsContent = (part && 'text' in part ? part.text : null) || 'No market news.'
-
-                        userNewsSummaries.push({ user, newsContent});
-                } catch (e) {
-                    console.error(`Failed to summarize news for userId ${user.id}`, e);
-                    userNewsSummaries.push({user, newsContent: null });
-
-                }
-            }
-
-            // Step #4: Send emails
-            await step.run('send-news-emails', async () => {
-                    await Promise.all(
-                        userNewsSummaries.map(async ({ user, newsContent }) => {
-                            if(!newsContent) return false;
-
-                            return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday(), newsContent})
-                        })
-                    )
+            const userNewsSummaries = await step.run('summarize-user-news', async (): Promise<UserNewsSummaryPayload[]> => {
+                return userNews.map(({ user, news }) => ({
+                    user,
+                    newsContent: news.length > 0
+                        ? news
+                            .map((article) => `${article.headline}\n${article.summary}\n${article.url}`)
+                            .join('\n\n')
+                        : null,
+                }));
             });
 
-            return { success: true, message: 'Daily news summary emails sent successfully!' };
+            await step.run('send-news-emails', async () => {
+                const date = formatDateToday();
+                const results = await Promise.allSettled(
+                    userNewsSummaries.map(async ({ user, newsContent }) => {
+                        if (!newsContent) return false;
+
+                        await step.run(`send-news-email-${user.id}-${date}`, async () => {
+                            await sendNewsSummaryEmail({
+                                email: user.email,
+                                date,
+                                newsContent,
+                            });
+                        });
+
+                        return true;
+                    }),
+                );
+
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        console.error(
+                            `Failed to send news email for userId ${userNewsSummaries[index].user.id}`,
+                            result.reason,
+                        );
+                    }
+                });
+            });
+
+            return { success: true };
     }
 
 )

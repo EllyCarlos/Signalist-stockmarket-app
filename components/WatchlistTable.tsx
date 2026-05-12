@@ -8,19 +8,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const rows = [
-  ["Apple Inc.", "AAPL", "$189.84", "+1.24%", "$2.93T", "29.14", "Price > $190", "Added"],
-  ["Microsoft", "MSFT", "$421.32", "+0.88%", "$3.13T", "36.08", "Price > $425", "Added"],
-  ["NVIDIA", "NVDA", "$117.49", "-0.42%", "$2.89T", "64.21", "Price < $115", "Added"],
-]
+type WatchlistTableProps = {
+  rows?: Array<[string, string, string, string, string, string, string, string]>
+}
 
-const WatchlistTable = () => {
+const WatchlistTable = ({ rows = [] }: WatchlistTableProps) => {
   return (
     <Table className="watchlist-table">
       <TableHeader>
         <TableRow className="table-header-row">
           {WATCHLIST_TABLE_HEADER.map((header) => (
-            <TableHead key={header} className="table-header text-left">
+            <TableHead key={header} scope="col" className="table-header text-left">
               {header}
             </TableHead>
           ))}

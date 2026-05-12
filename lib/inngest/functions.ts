@@ -1,9 +1,10 @@
 import {inngest} from "@/lib/inngest/client";
 import {PERSONALIZED_WELCOME_EMAIL_PROMPT} from "@/lib/inngest/prompts";
-import {sendWelcomeEmail} from "@/lib/nodemailer";
+import {sendNewsSummaryEmail, sendWelcomeEmail} from "@/lib/nodemailer";
 import {getAllUsersForNewsEmail} from "@/lib/actions/user.actions";
 import {getWatchlistSymbolsByEmail} from "@/lib/actions/watchlist.actions";
 import {getNews} from "@/lib/actions/finnhub.actions";
+import {formatDateToday} from "@/lib/utils";
 
 type UserNewsPayload = {
     user: User;
@@ -97,15 +98,28 @@ export const sendDailyNewsSummary = inngest.createFunction(
             const userNewsSummaries = await step.run('summarize-user-news', async (): Promise<UserNewsSummaryPayload[]> => {
                 return userNews.map(({ user, news }) => ({
                     user,
-                    newsContent: news.length > 0 ? `Prepared ${news.length} articles for ${user.email}` : null,
+                    newsContent: news.length > 0
+                        ? news
+                            .map((article) => `${article.headline}\n${article.summary}\n${article.url}`)
+                            .join('\n\n')
+                        : null,
                 }));
             });
 
             await step.run('send-news-emails', async () => {
-                return userNewsSummaries.map(({ user, newsContent }) => ({
-                    userId: user.id,
-                    queued: Boolean(newsContent),
-                }));
+                await Promise.all(
+                    userNewsSummaries.map(async ({ user, newsContent }) => {
+                        if (!newsContent) return false;
+
+                        await sendNewsSummaryEmail({
+                            email: user.email,
+                            date: formatDateToday(),
+                            newsContent,
+                        });
+
+                        return true;
+                    }),
+                );
             });
 
             return { success: true };

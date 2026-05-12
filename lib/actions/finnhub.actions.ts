@@ -4,8 +4,9 @@ import { getDateRange, validateArticle, formatArticle } from '@/lib/utils';
 import { POPULAR_STOCK_SYMBOLS } from '@/lib/constants';
 
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
-const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? '';
+const NEXT_PUBLIC_FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? process.env.FINNHUB_API_KEY ?? '';
 const FINNHUB_REQUEST_TIMEOUT_MS = 10000;
+const MAX_NEWS_ARTICLES = 6;
 
 type FinnhubCompanyProfile = {
     exchange?: string;
@@ -46,15 +47,13 @@ export { fetchJSON };
 export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> {
     try {
         const range = getDateRange(5);
-        const token = FINNHUB_API_KEY;
+        const token = NEXT_PUBLIC_FINNHUB_API_KEY;
         if (!token) {
             throw new Error('FINNHUB API key is not configured');
         }
         const cleanSymbols = (symbols || [])
             .map((s) => s?.trim().toUpperCase())
             .filter((s): s is string => Boolean(s));
-
-        const maxArticles = 6;
 
         // If we have symbols, try to fetch company news per symbol and round-robin select
         if (cleanSymbols.length > 0) {
@@ -74,8 +73,7 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
             );
 
             const collected: MarketNewsArticle[] = [];
-            // Round-robin up to 6 picks
-            for (let round = 0; round < maxArticles; round++) {
+            for (let round = 0; round < MAX_NEWS_ARTICLES; round++) {
                 for (let i = 0; i < cleanSymbols.length; i++) {
                     const sym = cleanSymbols[i];
                     const list = perSymbolArticles[sym] || [];
@@ -83,20 +81,17 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
                     const article = list.shift();
                     if (!article || !validateArticle(article)) continue;
                     collected.push(formatArticle(article, true, sym, round));
-                    if (collected.length >= maxArticles) break;
+                    if (collected.length >= MAX_NEWS_ARTICLES) break;
                 }
-                if (collected.length >= maxArticles) break;
+                if (collected.length >= MAX_NEWS_ARTICLES) break;
             }
 
             if (collected.length > 0) {
-                // Sort by datetime desc
                 collected.sort((a, b) => (b.datetime || 0) - (a.datetime || 0));
-                return collected.slice(0, maxArticles);
+                return collected.slice(0, MAX_NEWS_ARTICLES);
             }
-            // If none collected, fall through to general news
         }
 
-        // General market news fallback or when no symbols provided
         const generalUrl = `${FINNHUB_BASE_URL}/news?category=general&token=${token}`;
         const general = await fetchJSON<RawNewsArticle[]>(generalUrl, 300);
 
@@ -108,10 +103,12 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
             if (seen.has(key)) continue;
             seen.add(key);
             unique.push(art);
-            if (unique.length >= 20) break; // cap early before final slicing
+            if (unique.length >= 20) break;
         }
 
-        const formatted = unique.slice(0, maxArticles).map((a, idx) => formatArticle(a, false, undefined, idx));
+        const formatted = unique
+            .slice(0, MAX_NEWS_ARTICLES)
+            .map((a, idx) => formatArticle(a, false, undefined, idx));
         return formatted;
     } catch (err) {
         console.error('getNews error:', err);
@@ -121,7 +118,7 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
 
 export async function searchStocks(query?: string): Promise<StockWithWatchlistStatus[]> {
     try {
-        const token = FINNHUB_API_KEY;
+        const token = NEXT_PUBLIC_FINNHUB_API_KEY;
         if (!token) {
             return [];
         }

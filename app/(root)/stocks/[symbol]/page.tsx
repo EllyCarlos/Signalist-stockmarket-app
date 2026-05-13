@@ -1,4 +1,5 @@
 import TradingViewWidget from "@/components/TradingViewWidget";
+import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
 import {
     BASELINE_WIDGET_CONFIG,
     CANDLE_CHART_WIDGET_CONFIG,
@@ -7,20 +8,6 @@ import {
     SYMBOL_INFO_WIDGET_CONFIG,
     TECHNICAL_ANALYSIS_WIDGET_CONFIG,
 } from "@/lib/constants";
-
-const WatchlistButton = ({
-    symbol,
-    company,
-    isInWatchlist,
-}: WatchlistButtonProps) => (
-    <button
-        type="button"
-        className={`watchlist-btn ${isInWatchlist ? "watchlist-remove" : ""}`}
-        aria-label={`${isInWatchlist ? "Remove" : "Add"} ${company} (${symbol}) ${isInWatchlist ? "from" : "to"} watchlist`}
-    >
-        {isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
-    </button>
-);
 
 const SCRIPT_URL = "https://s3.tradingview.com/external-embedding/embed-widget-";
 
@@ -54,8 +41,8 @@ const StockDetails = async ({ params }: StockDetailsPageProps) => {
             <section className="space-y-8">
                 <WatchlistButton
                     symbol={symbol.toUpperCase()}
-                    company={symbol.toUpperCase()}
-                    isInWatchlist={false}
+                    companyName={symbol.toUpperCase()}
+                    variant="button"
                 />
                 <TradingViewWidget
                     title="Technical Analysis"

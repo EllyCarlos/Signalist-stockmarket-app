@@ -1,6 +1,6 @@
 'use server';
 
-import { Watchlist } from "@/database/models/watchlist.model";
+import Watchlist from "@/database/models/Watchlist";
 import { connectToDatabase } from "@/database/mongoose";
 
 type BetterAuthUserDocument = {
@@ -31,12 +31,12 @@ export const getWatchlistSymbolsByEmail = async (email: string): Promise<string[
         const userId = user.id || user._id?.toString();
         if (!userId) return [];
 
-        const items = await Watchlist.find({ userId })
-            .select({ symbol: 1, _id: 0 })
-            .lean<WatchlistSymbolDocument[]>()
+        const watchlist = await Watchlist.findOne({ userId })
+            .select({ stocks: 1, _id: 0 })
+            .lean<{ stocks?: WatchlistSymbolDocument[] }>()
             .exec();
 
-        return items
+        return (watchlist?.stocks ?? [])
             .map((item) => item.symbol)
             .filter((symbol): symbol is string => Boolean(symbol));
     } catch (e) {

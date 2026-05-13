@@ -8,8 +8,9 @@ import {
   CommandInput,
   CommandList,
 } from "@/components/ui/command";
+import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
 import { Button } from "./ui/button";
-import {Loader2, Star, TrendingUp} from "lucide-react";
+import {Loader2, TrendingUp} from "lucide-react";
 import Link from "next/link";
 import { searchStocks } from "@/lib/actions/finnhub.actions";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -128,23 +129,28 @@ export default function SearchCommand({
               <ul>
               {displayStocks?.map((stock) =>(
                   <li key={stock.symbol} className="search-item">
-                    <Link
-                        href={`/stocks/${stock.symbol}`}
-                        onClick={handlesSelectStock}
-                        className="search-item-link"
-                    >
-                      <TrendingUp className="h-4 w-4 text-gray-500"/>
-                    <div className="flex-1">
-                      <div className="search-item-name">
-                        {stock.name}
+                    <div className="search-item-link">
+                      <Link
+                          href={`/stocks/${stock.symbol}`}
+                          onClick={handlesSelectStock}
+                          className="flex flex-1 items-center gap-3"
+                      >
+                        <TrendingUp className="h-4 w-4 text-gray-500"/>
+                      <div className="flex-1">
+                        <div className="search-item-name">
+                          {stock.name}
+                        </div>
+                        <div>
+                          {stock.symbol} | {stock.exchange} | {stock.type}
+                        </div>
                       </div>
-                      <div>
-                        {stock.symbol} | {stock.exchange} | {stock.type}
-
-                      </div>
+                      </Link>
+                      <WatchlistButton
+                        symbol={stock.symbol}
+                        companyName={stock.name}
+                        variant="icon"
+                      />
                     </div>
-                      <Star />
-                    </Link>
                   </li>
                   )
               )}

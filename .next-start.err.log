@@ -1,0 +1,36 @@
+Nested step tooling detected in "send-news-email-69f79d4f8a6495258eed95ca-Wednesday, May 13, 2026"
+{
+  code: 'NESTING_STEPS',
+  explanation: 'Nesting step.* calls is not supported. This warning may also appear if steps are separated by regular async calls, which is fine.',
+  action: 'Avoid using step.* inside other step.* calls. Use a separate async function or promise chaining to compose steps.'
+}
+Nested step tooling detected in "send-news-email-69f79e2b8a6495258eed95cd-Wednesday, May 13, 2026"
+{
+  code: 'NESTING_STEPS',
+  explanation: 'Nesting step.* calls is not supported. This warning may also appear if steps are separated by regular async calls, which is fine.',
+  action: 'Avoid using step.* inside other step.* calls. Use a separate async function or promise chaining to compose steps.'
+}
+Nested step tooling detected in "send-news-email-6a023450c075b09c940ddba9-Wednesday, May 13, 2026"
+{
+  code: 'NESTING_STEPS',
+  explanation: 'Nesting step.* calls is not supported. This warning may also appear if steps are separated by regular async calls, which is fine.',
+  action: 'Avoid using step.* inside other step.* calls. Use a separate async function or promise chaining to compose steps.'
+}
+Nested step tooling detected in "send-news-email-69f79d4f8a6495258eed95ca-Wednesday, May 13, 2026"
+{
+  code: 'NESTING_STEPS',
+  explanation: 'Nesting step.* calls is not supported. This warning may also appear if steps are separated by regular async calls, which is fine.',
+  action: 'Avoid using step.* inside other step.* calls. Use a separate async function or promise chaining to compose steps.'
+}
+Nested step tooling detected in "send-news-email-69f79e2b8a6495258eed95cd-Wednesday, May 13, 2026"
+{
+  code: 'NESTING_STEPS',
+  explanation: 'Nesting step.* calls is not supported. This warning may also appear if steps are separated by regular async calls, which is fine.',
+  action: 'Avoid using step.* inside other step.* calls. Use a separate async function or promise chaining to compose steps.'
+}
+Nested step tooling detected in "send-news-email-6a023450c075b09c940ddba9-Wednesday, May 13, 2026"
+{
+  code: 'NESTING_STEPS',
+  explanation: 'Nesting step.* calls is not supported. This warning may also appear if steps are separated by regular async calls, which is fine.',
+  action: 'Avoid using step.* inside other step.* calls. Use a separate async function or promise chaining to compose steps.'
+}

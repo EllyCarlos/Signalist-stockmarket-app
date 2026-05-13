@@ -1,5 +1,6 @@
 'use client'
 
+import { Star } from "lucide-react";
 import {NAV_ITEMS} from "@/lib/constants";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
@@ -28,6 +29,16 @@ const NavItems = ({initialStocks}: { initialStocks: StockWithWatchlistStatus[]})
                 </li>
             )
 
+            if (label === 'Watchlist') {
+                return <li key={href} className="w-full sm:w-auto">
+                    <Link href={href} className={`inline-flex items-center gap-2 py-1 sm:py-0 hover:text-yellow-500 transition-colors ${
+                        isActive(href) ? 'text-gray-100' : 'text-gray-400'
+                    }`}>
+                        <Star className="h-4 w-4" />
+                        Watchlist
+                    </Link>
+                </li>
+            }
 
                 return <li key={href} className="w-full sm:w-auto">
                     <Link href={href} className={`block py-1 sm:py-0 hover:text-yellow-500 transition-colors ${

@@ -99,9 +99,13 @@ export const sendDailyNewsSummary = inngest.createFunction(
                 return userNews.map(({ user, news }) => ({
                     user,
                     newsContent: news.length > 0
-                        ? news
-                            .map((article) => `${article.headline}\n${article.summary}\n${article.url}`)
-                            .join('\n\n')
+                        ? news.map((article) => `
+                        <div style="margin-bottom:16px">
+                        <strong>${article.headline}</strong><br/>
+                        <span>${article.summary}</span><br/>
+                        <a href="${article.url}">${article.url}</a>
+                        </div>`)
+                            .join('')
                         : null,
                 }));
             });
